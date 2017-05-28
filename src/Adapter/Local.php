@@ -5,6 +5,7 @@ namespace League\Flysystem\Adapter;
 use DirectoryIterator;
 use FilesystemIterator;
 use finfo as Finfo;
+use GuzzleHttp\Psr7\Stream;
 use League\Flysystem\AdapterInterface;
 use League\Flysystem\Config;
 use League\Flysystem\Exception;
@@ -12,9 +13,11 @@ use League\Flysystem\NotSupportedException;
 use League\Flysystem\UnreadableFileException;
 use League\Flysystem\Util;
 use LogicException;
+use Psr\Http\Message\StreamInterface;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use SplFileInfo;
+use GuzzleHttp\Psr7;
 
 class Local extends AbstractAdapter
 {
@@ -144,21 +147,20 @@ class Local extends AbstractAdapter
     /**
      * @inheritdoc
      */
-    public function writeStream($path, $resource, Config $config)
+    public function writeStream($path, StreamInterface $stream, Config $config)
     {
         $location = $this->applyPathPrefix($path);
         $this->ensureDirectory(dirname($location));
-        $stream = fopen($location, 'w+b');
-
-        if ( ! $stream) {
+        $outputResource = fopen($location, 'w+b');
+        if (!$outputResource) {
             return false;
         }
 
-        stream_copy_to_stream($resource, $stream);
+        $outputStream = Util::ensureStreamInterface($outputResource);
 
-        if ( ! fclose($stream)) {
-            return false;
-        }
+        Psr7\copy_to_stream($stream, $outputStream);
+
+        $stream->close();
 
         if ($visibility = $config->get('visibility')) {
             $this->setVisibility($path, $visibility);
@@ -183,9 +185,9 @@ class Local extends AbstractAdapter
     /**
      * @inheritdoc
      */
-    public function updateStream($path, $resource, Config $config)
+    public function updateStream($path, StreamInterface $stream, Config $config)
     {
-        return $this->writeStream($path, $resource, $config);
+        return $this->writeStream($path, $stream, $config);
     }
 
     /**

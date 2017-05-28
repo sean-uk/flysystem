@@ -3,6 +3,8 @@
 namespace League\Flysystem\Adapter;
 
 use League\Flysystem\Config;
+use League\Flysystem\Util;
+use GuzzleHttp\Psr7;
 
 function fopen($result, $mode)
 {
@@ -135,11 +137,11 @@ class LocalAdapterTests extends \PHPUnit_Framework_TestCase
     public function testWriteStream()
     {
         $adapter = $this->adapter;
-        $temp = tmpfile();
-        fwrite($temp, 'dummy');
-        rewind($temp);
+        $temp = Psr7\stream_for(tmpfile());
+        $temp->write('dummy');
+        $temp->rewind();
         $adapter->writeStream('dir/file.txt', $temp, new Config(['visibility' => 'public']));
-        fclose($temp);
+        $temp->close();
         $this->assertTrue($adapter->has('dir/file.txt'));
         $result = $adapter->read('dir/file.txt');
         $this->assertEquals('dummy', $result['contents']);
@@ -156,10 +158,10 @@ class LocalAdapterTests extends \PHPUnit_Framework_TestCase
     {
         $adapter = $this->adapter;
         $adapter->write('file.txt', 'initial', new Config());
-        $temp = tmpfile();
-        fwrite($temp, 'dummy');
+        $temp = Psr7\stream_for(tmpfile());
+        $temp->write('dummy');
         $adapter->updateStream('file.txt', $temp, new Config());
-        fclose($temp);
+        $temp->close();
         $this->assertTrue($adapter->has('file.txt'));
         $adapter->delete('file.txt');
     }
@@ -183,8 +185,16 @@ class LocalAdapterTests extends \PHPUnit_Framework_TestCase
 
     public function testFailingStreamCalls()
     {
-        $this->assertFalse($this->adapter->writeStream('false', tmpfile(), new Config()));
-        $this->assertFalse($this->adapter->writeStream('fail.close', tmpfile(), new Config()));
+        $this->assertFalse($this->adapter->writeStream(
+            'false',
+            Psr7\stream_for(tmpfile()),
+            new Config())
+        );
+        $this->assertFalse($this->adapter->writeStream(
+            'fail.close',
+            Psr7\stream_for(tmpfile()),
+            new Config())
+        );
     }
 
     public function testNullPrefix()

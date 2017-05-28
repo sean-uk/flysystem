@@ -2,7 +2,7 @@
 
 namespace League\Flysystem;
 
-use GuzzleHttp\Psr7\Stream;
+use GuzzleHttp\Psr7;
 use League\Flysystem\Util\MimeType;
 use LogicException;
 use Psr\Http\Message\StreamInterface;
@@ -299,6 +299,7 @@ class Util
      * @return StreamInterface
      *
      * @throws InvalidArgumentException if $stream is not a resource or already a StreamInterface
+     * @todo perhaps it should be configurable what type of stream is returned here?
      * @todo UNIT TESTS FOR THIS!
      */
     public static function ensureStreamInterface($stream)
@@ -312,8 +313,8 @@ class Util
             throw new InvalidArgumentException(__METHOD__ . ' expects argument #1 to be a valid resource or StreamInterface.');
         }
 
-        // construct a plain stream around it
-        $streamObject = new Stream($stream);
+        // get a stream object for it
+        $streamObject = Psr7\stream_for($stream);
         return $streamObject;
     }
 

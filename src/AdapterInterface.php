@@ -35,6 +35,7 @@ interface AdapterInterface extends ReadInterface
      * @param Config   $config   Config object
      *
      * @return array|false false on failure file meta data on success
+     * @todo changing the adapter interface makes life difficult for every implementor. would like to avoid this!
      */
     public function writeStream($path, StreamInterface $stream, Config $config);
 
@@ -53,12 +54,12 @@ interface AdapterInterface extends ReadInterface
      * Update a file using a stream.
      *
      * @param string   $path
-     * @param resource $resource
+     * @param StreamInterface $stream
      * @param Config   $config   Config object
      *
      * @return array|false false on failure file meta data on success
      */
-    public function updateStream($path, $resource, Config $config);
+    public function updateStream($path, StreamInterface $stream, Config $config);
 
     /**
      * Rename a file.
