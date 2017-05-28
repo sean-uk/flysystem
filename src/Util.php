@@ -319,11 +319,61 @@ class Util
     }
 
     /**
-     * Rewind a stream, if it is seekable.
+     * Rewind a stream resource or StreamInterface, if it is seekable
+     *
+     * @param $stream
+     */
+    public static function rewindStream($stream)
+    {
+        if (is_resource($stream)) {
+            self::rewindStreamResource($stream);
+            return;
+        }
+        if ($stream instanceof StreamInterface) {
+            self::rewindStreamInterface($stream);
+        }
+    }
+
+    /**
+     * Rewind a stream.
+     *
+     * @param resource $resource
+     */
+    public static function rewindStreamResource($resource)
+    {
+        if (ftell($resource) !== 0 && static::isSeekableStream($resource)) {
+            rewind($resource);
+        }
+    }
+
+    public static function isSeekableStream($resource)
+    {
+        $metadata = stream_get_meta_data($resource);
+
+        return $metadata['seekable'];
+    }
+
+    /**
+     * @param mixed $stream
+     * @return bool
+     */
+    public static function isResourceOrStreamInterface($stream)
+    {
+        if (is_resource($stream)) {
+            return true;
+        }
+        if ($stream instanceof StreamInterface) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Rewind a StreamInterface, if it is seekable.
      *
      * @param StreamInterface|resource $stream
      */
-    public static function rewindStream($stream)
+    public static function rewindStreamInterface($stream)
     {
         /** @var StreamInterface $stream */
         $stream = self::ensureStreamInterface($stream);

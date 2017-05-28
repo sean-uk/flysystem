@@ -75,15 +75,22 @@ class Filesystem implements FilesystemInterface
      */
     public function writeStream($path, $stream, array $config = [])
     {
+        if (!Util::isResourceOrStreamInterface($stream)) {
+            throw new InvalidArgumentException(__METHOD__ . ' expects argument #1 to be a valid resource or StreamInterface.');
+        }
+
         $path = Util::normalizePath($path);
         $this->assertAbsent($path);
         $config = $this->prepareConfig($config);
 
-        /** @var StreamInterface $stream */
-        $stream = Util::ensureStreamInterface($stream);
         Util::rewindStream($stream);
 
-        return (bool) $this->getAdapter()->writeStream($path, $stream, $config);
+        $adapter = $this->getAdapter();
+        if ($adapter instanceof StreamInterfaceAdapterInterface) {
+            return (bool) $adapter->writeStreamInterface($path, $stream, $config);
+        }
+
+        return (bool) $adapter->writeStream($path, $stream, $config);
     }
 
     /**
