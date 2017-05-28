@@ -160,7 +160,11 @@ class Local extends AbstractAdapter
 
         Psr7\copy_to_stream($stream, $outputStream);
 
-        $stream->close();
+        // not using just StreamInterface::close because of the need to get the return value to know if it worked.
+        if (!fclose($outputResource)) {
+            return false;
+        }
+        $outputStream->close();
 
         if ($visibility = $config->get('visibility')) {
             $this->setVisibility($path, $visibility);
