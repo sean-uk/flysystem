@@ -87,6 +87,7 @@ class Filesystem implements FilesystemInterface
 
         $adapter = $this->getAdapter();
         if ($adapter instanceof StreamInterfaceAdapterInterface) {
+            $stream = Util::ensureStreamInterface($stream);
             return (bool) $adapter->writeStreamInterface($path, $stream, $config);
         }
 
