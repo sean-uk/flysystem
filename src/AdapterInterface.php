@@ -2,6 +2,8 @@
 
 namespace League\Flysystem;
 
+use Psr\Http\Message\StreamInterface;
+
 interface AdapterInterface extends ReadInterface
 {
     /**
@@ -29,12 +31,12 @@ interface AdapterInterface extends ReadInterface
      * Write a new file using a stream.
      *
      * @param string   $path
-     * @param resource $resource
+     * @param StreamInterface $stream
      * @param Config   $config   Config object
      *
      * @return array|false false on failure file meta data on success
      */
-    public function writeStream($path, $resource, Config $config);
+    public function writeStream($path, StreamInterface $stream, Config $config);
 
     /**
      * Update a file.

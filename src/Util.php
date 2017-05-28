@@ -2,8 +2,11 @@
 
 namespace League\Flysystem;
 
+use GuzzleHttp\Psr7\Stream;
 use League\Flysystem\Util\MimeType;
 use LogicException;
+use Psr\Http\Message\StreamInterface;
+use InvalidArgumentException;
 
 class Util
 {
@@ -241,25 +244,6 @@ class Util
     }
 
     /**
-     * Rewind a stream.
-     *
-     * @param resource $resource
-     */
-    public static function rewindStream($resource)
-    {
-        if (ftell($resource) !== 0 && static::isSeekableStream($resource)) {
-            rewind($resource);
-        }
-    }
-
-    public static function isSeekableStream($resource)
-    {
-        $metadata = stream_get_meta_data($resource);
-
-        return $metadata['seekable'];
-    }
-
-    /**
      * Get the size of a stream.
      *
      * @param resource $resource
@@ -306,5 +290,45 @@ class Util
         }
 
         return [$directories, $listedDirectories];
+    }
+
+    /**
+     * Get a high level stream interface for a stream resource, if it is not already one.
+     *
+     * @param resource|StreamInterface $stream
+     * @return StreamInterface
+     *
+     * @throws InvalidArgumentException if $stream is not a resource or already a StreamInterface
+     * @todo UNIT TESTS FOR THIS!
+     */
+    public static function ensureStreamInterface($stream)
+    {
+        // already a StreamInterface? nothing to do!
+        if ($stream instanceof StreamInterface) {
+            return $stream;
+        }
+
+        if (!is_resource($stream)) {
+            throw new InvalidArgumentException(__METHOD__ . ' expects argument #1 to be a valid resource or StreamInterface.');
+        }
+
+        // construct a plain stream around it
+        $streamObject = new Stream($stream);
+        return $streamObject;
+    }
+
+    /**
+     * Rewind a stream, if it is seekable.
+     *
+     * @param StreamInterface|resource $stream
+     */
+    public static function rewindStream($stream)
+    {
+        /** @var StreamInterface $stream */
+        $stream = self::ensureStreamInterface($stream);
+
+        if ($stream->tell() !== 0 && $stream->isSeekable()) {
+            $stream->rewind();
+        }
     }
 }

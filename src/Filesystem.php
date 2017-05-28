@@ -6,6 +6,7 @@ use InvalidArgumentException;
 use League\Flysystem\Adapter\CanOverwriteFiles;
 use League\Flysystem\Plugin\PluggableTrait;
 use League\Flysystem\Util\ContentListingFormatter;
+use Psr\Http\Message\StreamInterface;
 
 /**
  * @method array getWithMetadata(string $path, array $metadata)
@@ -72,19 +73,17 @@ class Filesystem implements FilesystemInterface
     /**
      * @inheritdoc
      */
-    public function writeStream($path, $resource, array $config = [])
+    public function writeStream($path, $stream, array $config = [])
     {
-        if ( ! is_resource($resource)) {
-            throw new InvalidArgumentException(__METHOD__ . ' expects argument #2 to be a valid resource.');
-        }
-
         $path = Util::normalizePath($path);
         $this->assertAbsent($path);
         $config = $this->prepareConfig($config);
 
-        Util::rewindStream($resource);
+        /** @var StreamInterface $stream */
+        $stream = Util::ensureStreamInterface($stream);
+        Util::rewindStream($stream);
 
-        return (bool) $this->getAdapter()->writeStream($path, $resource, $config);
+        return (bool) $this->getAdapter()->writeStream($path, $stream, $config);
     }
 
     /**

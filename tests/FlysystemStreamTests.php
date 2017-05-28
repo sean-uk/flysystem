@@ -1,6 +1,7 @@
 <?php
 
 use League\Flysystem\Filesystem;
+use Psr\Http\Message\StreamInterface;
 
 class FlysystemStreamTests extends PHPUnit_Framework_TestCase
 {
@@ -12,6 +13,38 @@ class FlysystemStreamTests extends PHPUnit_Framework_TestCase
         $filesystem = new Filesystem($adapter);
         $this->assertTrue($filesystem->writeStream('file.txt', tmpfile()));
         $this->assertFalse($filesystem->writeStream('file.txt', tmpfile()));
+    }
+
+    public function testWritePsr7Stream()
+    {
+        $adapter = Mockery::mock(\League\Flysystem\AdapterInterface::class);
+        $adapter->shouldReceive('has')->andReturn(false);
+        $adapter->shouldReceive('writeStream')->andReturn(['path' => 'file.txt'], false);
+        $filesystem = new Filesystem($adapter);
+
+        $outStream = Mockery::mock(StreamInterface::class);
+        $outStream->shouldReceive('tell')->andReturn(5000);
+        $outStream->shouldReceive('isSeekable')->andReturn(false);
+        $outStream->shouldNotReceive('seek');
+
+        $this->assertTrue($filesystem->writeStream('file.txt', $outStream));
+        $this->assertFalse($filesystem->writeStream('file.txt', $outStream));
+    }
+
+    public function testWritePsr7SeekableStream()
+    {
+        $adapter = Mockery::mock(\League\Flysystem\AdapterInterface::class);
+        $adapter->shouldReceive('has')->andReturn(false);
+        $adapter->shouldReceive('writeStream')->andReturn(['path' => 'file.txt'], false);
+        $filesystem = new Filesystem($adapter);
+
+        $outStream = Mockery::mock(StreamInterface::class);
+        $outStream->shouldReceive('tell')->andReturn(5000);
+        $outStream->shouldReceive('isSeekable')->andReturn(true);
+        $outStream->shouldReceive('rewind');
+
+        $this->assertTrue($filesystem->writeStream('file.txt', $outStream));
+        $this->assertFalse($filesystem->writeStream('file.txt', $outStream));
     }
 
     /**

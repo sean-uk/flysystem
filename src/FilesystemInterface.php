@@ -2,6 +2,8 @@
 
 namespace League\Flysystem;
 
+use Psr\Http\Message\StreamInterface;
+
 interface FilesystemInterface
 {
     /**
@@ -115,7 +117,8 @@ interface FilesystemInterface
      * Write a new file using a stream.
      *
      * @param string   $path     The path of the new file.
-     * @param resource $resource The file handle.
+     * @param StreamInterface|resource $stream a StreamInferface to a file handle,
+     *      or a stream resource of type stream
      * @param array    $config   An optional configuration array.
      *
      * @throws \InvalidArgumentException If $resource is not a file handle.
@@ -123,7 +126,7 @@ interface FilesystemInterface
      *
      * @return bool True on success, false on failure.
      */
-    public function writeStream($path, $resource, array $config = []);
+    public function writeStream($path, $stream, array $config = []);
 
     /**
      * Update an existing file.
