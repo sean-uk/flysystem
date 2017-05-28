@@ -10,6 +10,7 @@ use League\Flysystem\AdapterInterface;
 use League\Flysystem\Config;
 use League\Flysystem\Exception;
 use League\Flysystem\NotSupportedException;
+use League\Flysystem\StreamInterfaceAdapterInterface;
 use League\Flysystem\UnreadableFileException;
 use League\Flysystem\Util;
 use LogicException;
@@ -19,7 +20,7 @@ use RecursiveIteratorIterator;
 use SplFileInfo;
 use GuzzleHttp\Psr7;
 
-class Local extends AbstractAdapter
+class Local extends AbstractAdapter implements StreamInterfaceAdapterInterface
 {
     /**
      * @var int
@@ -147,7 +148,35 @@ class Local extends AbstractAdapter
     /**
      * @inheritdoc
      */
-    public function writeStream($path, StreamInterface $stream, Config $config)
+    public function writeStream($path, $resource, Config $config)
+    {
+        $location = $this->applyPathPrefix($path);
+        $this->ensureDirectory(dirname($location));
+        $stream = fopen($location, 'w+b');
+
+        if ( ! $stream) {
+            return false;
+        }
+
+        stream_copy_to_stream($resource, $stream);
+
+        if ( ! fclose($stream)) {
+            return false;
+        }
+
+        if ($visibility = $config->get('visibility')) {
+            $this->setVisibility($path, $visibility);
+        }
+
+        $type = 'file';
+
+        return compact('type', 'path', 'visibility');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function writeStreamInterface($path, StreamInterface $stream, Config $config)
     {
         $location = $this->applyPathPrefix($path);
         $this->ensureDirectory(dirname($location));
@@ -189,9 +218,17 @@ class Local extends AbstractAdapter
     /**
      * @inheritdoc
      */
-    public function updateStream($path, StreamInterface $stream, Config $config)
+    public function updateStream($path, $resource, Config $config)
     {
-        return $this->writeStream($path, $stream, $config);
+        return $this->writeStream($path, $resource, $config);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function updateStreamInterface($path, StreamInterface $stream, Config $config)
+    {
+        return $this->writeStreamInterface($path, $stream, $config);
     }
 
     /**

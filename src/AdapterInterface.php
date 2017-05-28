@@ -2,8 +2,6 @@
 
 namespace League\Flysystem;
 
-use Psr\Http\Message\StreamInterface;
-
 interface AdapterInterface extends ReadInterface
 {
     /**
@@ -31,13 +29,12 @@ interface AdapterInterface extends ReadInterface
      * Write a new file using a stream.
      *
      * @param string   $path
-     * @param StreamInterface $stream
+     * @param resource $resource a file handle
      * @param Config   $config   Config object
      *
      * @return array|false false on failure file meta data on success
-     * @todo changing the adapter interface makes life difficult for every implementor. would like to avoid this!
      */
-    public function writeStream($path, StreamInterface $stream, Config $config);
+    public function writeStream($path, $resource, Config $config);
 
     /**
      * Update a file.
@@ -54,12 +51,12 @@ interface AdapterInterface extends ReadInterface
      * Update a file using a stream.
      *
      * @param string   $path
-     * @param StreamInterface $stream
+     * @param resource $resource
      * @param Config   $config   Config object
      *
      * @return array|false false on failure file meta data on success
      */
-    public function updateStream($path, StreamInterface $stream, Config $config);
+    public function updateStream($path, $resource, Config $config);
 
     /**
      * Rename a file.
