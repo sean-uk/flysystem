@@ -6,6 +6,9 @@ use League\Flysystem\Util;
 use Prophecy\Argument;
 use Prophecy\Argument\Token\TypeToken;
 use Prophecy\Prophecy\ObjectProphecy;
+use GuzzleHttp\Psr7;
+use League\Flysystem\StreamInterfaceAdapterInterface;
+use League\Flysystem\AdapterInterface;
 
 class FilesystemTests extends \PHPUnit_Framework_TestCase
 {
@@ -35,11 +38,13 @@ class FilesystemTests extends \PHPUnit_Framework_TestCase
     private $filesystemConfig;
 
     /**
+     * @param string $implements
+     *
      * @before
      */
-    public function setupAdapter()
+    public function setupAdapter($classOrInterface = AdapterInterface::class)
     {
-        $this->prophecy = $this->prophesize('League\\Flysystem\\AdapterInterface');
+        $this->prophecy = $this->prophesize($classOrInterface);
         $this->adapter = $this->prophecy->reveal();
         $this->filesystemConfig = new Config();
         $this->filesystem = new Filesystem($this->adapter, $this->filesystemConfig);
@@ -90,6 +95,22 @@ class FilesystemTests extends \PHPUnit_Framework_TestCase
         fclose($stream);
     }
 
+    public function testWriteStreamInterface()
+    {
+        $path = 'path.txt';
+        $stream = Psr7\stream_for(tmpfile());
+
+        // don't use the default adapter, create one implementing StreamInterfaceAdapterInterface
+        /** @var AdapterInterface $adapter */
+        $this->setupAdapter(StreamInterfaceAdapterInterface::class);
+        $this->prophecy->has($path)->willReturn(false);
+        $this->prophecy->writeStreamInterface($path, $stream, $this->config)->willReturn(compact('path'));
+
+        $result = $this->filesystem->writeStream($path, $stream);
+        $this->assertTrue($result);
+        $stream->close();
+    }
+
     public function testUpdate()
     {
         $path = 'path.txt';
@@ -107,6 +128,20 @@ class FilesystemTests extends \PHPUnit_Framework_TestCase
         $this->prophecy->updateStream($path, $stream, $this->config)->willReturn(compact('path'));
         $this->assertTrue($this->filesystem->updateStream($path, $stream));
         fclose($stream);
+    }
+
+    public function testUpdateStreamInterface()
+    {
+        // make the adapter in use support stream interfaces
+        $this->setupAdapter(StreamInterfaceAdapterInterface::class);
+
+        $path = 'path.txt';
+        $stream = Psr7\stream_for(tmpfile());
+        $this->prophecy->has($path)->willReturn(true);
+        $this->prophecy->updateStreamInterface($path, $stream, $this->config)->willReturn(compact('path'));
+        $result = $this->filesystem->updateStream($path, $stream);
+        $this->assertTrue($result);
+        $stream->close();
     }
 
     public function testPutNew()

@@ -76,13 +76,12 @@ class Filesystem implements FilesystemInterface
     public function writeStream($path, $stream, array $config = [])
     {
         if (!Util::isResourceOrStreamInterface($stream)) {
-            throw new InvalidArgumentException(__METHOD__ . ' expects argument #1 to be a valid resource or StreamInterface.');
+            throw new InvalidArgumentException(__METHOD__ . ' expects argument #2 to be a valid resource or StreamInterface.');
         }
 
         $path = Util::normalizePath($path);
         $this->assertAbsent($path);
         $config = $this->prepareConfig($config);
-
         Util::rewindStream($stream);
 
         $adapter = $this->getAdapter();
@@ -163,18 +162,23 @@ class Filesystem implements FilesystemInterface
     /**
      * @inheritdoc
      */
-    public function updateStream($path, $resource, array $config = [])
+    public function updateStream($path, $stream, array $config = [])
     {
-        if ( ! is_resource($resource)) {
-            throw new InvalidArgumentException(__METHOD__ . ' expects argument #2 to be a valid resource.');
+        if (!Util::isResourceOrStreamInterface($stream)) {
+            throw new InvalidArgumentException(__METHOD__ . ' expects argument #2 to be a valid resource or StreamInterface.');
         }
 
         $path = Util::normalizePath($path);
         $config = $this->prepareConfig($config);
         $this->assertPresent($path);
-        Util::rewindStream($resource);
+        Util::rewindStream($stream);
 
-        return (bool) $this->getAdapter()->updateStream($path, $resource, $config);
+        if ($this->getAdapter() instanceof StreamInterfaceAdapterInterface) {
+            $stream = Util::ensureStreamInterface($stream);
+            return (bool) $this->getAdapter()->updateStreamInterface($path, $stream, $config);
+        }
+
+        return (bool) $this->getAdapter()->updateStream($path, $stream, $config);
     }
 
     /**

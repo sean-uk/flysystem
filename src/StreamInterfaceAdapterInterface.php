@@ -23,6 +23,8 @@ interface StreamInterfaceAdapterInterface extends AdapterInterface
     public function writeStreamInterface($path, StreamInterface $stream, Config $config);
 
     /**
+     * Update a file using a StreamInterface.
+     *
      * @param $path
      * @param StreamInterface $stream
      * @param Config $config

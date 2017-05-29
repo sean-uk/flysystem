@@ -145,7 +145,8 @@ interface FilesystemInterface
      * Update an existing file using a stream.
      *
      * @param string   $path     The path of the existing file.
-     * @param resource $resource The file handle.
+     * @param StreamInterface|resource $stream a StreamInferface to a file handle,
+     *      or a stream resource of type stream
      * @param array    $config   An optional configuration array.
      *
      * @throws \InvalidArgumentException If $resource is not a file handle.
@@ -153,7 +154,7 @@ interface FilesystemInterface
      *
      * @return bool True on success, false on failure.
      */
-    public function updateStream($path, $resource, array $config = []);
+    public function updateStream($path, $stream, array $config = []);
 
     /**
      * Rename a file.
@@ -238,14 +239,15 @@ interface FilesystemInterface
      * Create a file or update if exists.
      *
      * @param string   $path     The path to the file.
-     * @param resource $resource The file handle.
+     * @param StreamInterface|resource $stream a StreamInferface to a file handle,
+     *      or a stream resource of type stream
      * @param array    $config   An optional configuration array.
      *
      * @throws \InvalidArgumentException Thrown if $resource is not a resource.
      *
      * @return bool True on success, false on failure.
      */
-    public function putStream($path, $resource, array $config = []);
+    public function putStream($path, $stream, array $config = []);
 
     /**
      * Read and delete a file.
