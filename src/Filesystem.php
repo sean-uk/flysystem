@@ -125,19 +125,12 @@ class Filesystem implements FilesystemInterface
 
         // @todo this 4-way condition seems a little clumsy
         if ($isStreamInterfaceAdapter) {
-            $alreadyInterface = ($stream instanceof StreamInterface);
-
             $stream = Util::ensureStreamInterface($stream);
             if ( ! $this->adapter instanceof CanOverwriteFiles &&$this->has($path)) {
-                $result = (bool) $this->getAdapter()->updateStreamInterface($path, $stream, $config);
+                return (bool) $this->getAdapter()->updateStreamInterface($path, $stream, $config);
             } else {
-                $result = (bool)$this->getAdapter()->writeStreamInterface($path, $stream, $config);
+                return (bool)$this->getAdapter()->writeStreamInterface($path, $stream, $config);
             }
-
-            if (!$alreadyInterface) {
-                $stream->detach();
-            }
-            return $result;
         }
 
         if ( ! $this->adapter instanceof CanOverwriteFiles &&$this->has($path)) {
@@ -193,15 +186,8 @@ class Filesystem implements FilesystemInterface
         Util::rewindStream($stream);
 
         if ($this->getAdapter() instanceof StreamInterfaceAdapterInterface) {
-            $alreadyInterface = ($stream instanceof StreamInterface);
-
             $stream = Util::ensureStreamInterface($stream);
-            $result = (bool) $this->getAdapter()->updateStreamInterface($path, $stream, $config);
-
-            if (!$alreadyInterface) {
-                $stream->detach();
-            }
-            return $result;
+            return (bool) $this->getAdapter()->updateStreamInterface($path, $stream, $config);
         }
 
         return (bool) $this->getAdapter()->updateStream($path, $stream, $config);

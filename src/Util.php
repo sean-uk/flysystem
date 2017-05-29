@@ -3,6 +3,7 @@
 namespace League\Flysystem;
 
 use GuzzleHttp\Psr7;
+use League\Flysystem\Stream\DetachOnDestructStream;
 use League\Flysystem\Util\MimeType;
 use LogicException;
 use Psr\Http\Message\StreamInterface;
@@ -315,7 +316,9 @@ class Util
 
         // get a stream object for it
         $streamObject = Psr7\stream_for($stream);
-        return $streamObject;
+        $decoratedStreamObject = new DetachOnDestructStream($streamObject);
+
+        return $decoratedStreamObject;
     }
 
     /**
