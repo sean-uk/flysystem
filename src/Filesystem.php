@@ -111,21 +111,31 @@ class Filesystem implements FilesystemInterface
     /**
      * @inheritdoc
      */
-    public function putStream($path, $resource, array $config = [])
+    public function putStream($path, $stream, array $config = [])
     {
-        if ( ! is_resource($resource)) {
-            throw new InvalidArgumentException(__METHOD__ . ' expects argument #2 to be a valid resource.');
+        if (!Util::isResourceOrStreamInterface($stream)) {
+            throw new InvalidArgumentException(__METHOD__ . ' expects argument #2 to be a valid resource or StreamInterface.');
         }
 
         $path = Util::normalizePath($path);
         $config = $this->prepareConfig($config);
-        Util::rewindStream($resource);
+        Util::rewindStream($stream);
 
-        if ( ! $this->adapter instanceof CanOverwriteFiles &&$this->has($path)) {
-            return (bool) $this->getAdapter()->updateStream($path, $resource, $config);
+        $isStreamInterfaceAdapter = ($this->getAdapter() instanceof StreamInterfaceAdapterInterface);
+
+        // @todo this 4-way condition seems a little clumsy
+        if ($isStreamInterfaceAdapter) {
+            if ( ! $this->adapter instanceof CanOverwriteFiles &&$this->has($path)) {
+                return (bool) $this->getAdapter()->updateStreamInterface($path, $stream, $config);
+            }
+            return (bool) $this->getAdapter()->writeStreamInterface($path, $stream, $config);
         }
 
-        return (bool) $this->getAdapter()->writeStream($path, $resource, $config);
+        if ( ! $this->adapter instanceof CanOverwriteFiles &&$this->has($path)) {
+            return (bool) $this->getAdapter()->updateStream($path, $stream, $config);
+        }
+
+        return (bool) $this->getAdapter()->writeStream($path, $stream, $config);
     }
 
     /**

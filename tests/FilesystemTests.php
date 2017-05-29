@@ -163,6 +163,19 @@ class FilesystemTests extends \PHPUnit_Framework_TestCase
         fclose($stream);
     }
 
+    public function testPutNewStreamInterface()
+    {
+        $this->setupAdapter(StreamInterfaceAdapterInterface::class);
+
+        $path = 'path.txt';
+        $stream = Psr7\stream_for(tmpfile());
+        $this->prophecy->has($path)->willReturn(false);
+        $this->prophecy->writeStreamInterface($path, $stream, $this->config)->willReturn(compact('path'));
+        $result = $this->filesystem->putStream($path, $stream);
+        $this->assertTrue($result);
+        $stream->close();
+    }
+
     public function testPutUpdate()
     {
         $path = 'path.txt';
@@ -180,6 +193,19 @@ class FilesystemTests extends \PHPUnit_Framework_TestCase
         $this->prophecy->updateStream($path, $stream, $this->config)->willReturn(compact('path'));
         $this->assertTrue($this->filesystem->putStream($path, $stream));
         fclose($stream);
+    }
+
+    public function testPutUpdateStreamInterface()
+    {
+        $this->setupAdapter(StreamInterfaceAdapterInterface::class);
+
+        $path = 'path.txt';
+        $stream = Psr7\stream_for(tmpfile());
+        $this->prophecy->has($path)->willReturn(true);
+        $this->prophecy->updateStreamInterface($path, $stream, $this->config)->willReturn(compact('path'));
+        $result = $this->filesystem->putStream($path, $stream);
+        $this->assertTrue($result);
+        $stream->close();
     }
 
     public function testPutStreamInvalid()
