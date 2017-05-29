@@ -125,6 +125,7 @@ class Filesystem implements FilesystemInterface
 
         // @todo this 4-way condition seems a little clumsy
         if ($isStreamInterfaceAdapter) {
+            $stream = Util::ensureStreamInterface($stream);
             if ( ! $this->adapter instanceof CanOverwriteFiles &&$this->has($path)) {
                 return (bool) $this->getAdapter()->updateStreamInterface($path, $stream, $config);
             }
