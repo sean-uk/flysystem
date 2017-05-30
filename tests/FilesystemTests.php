@@ -39,13 +39,16 @@ class FilesystemTests extends \PHPUnit_Framework_TestCase
     private $filesystemConfig;
 
     /**
-     * @param string $classOrInterface the class / interface the adaptor should implement
+     * @param array $additionalInterfaces the mock will also implement each of these interface names.
      *
      * @before
      */
-    public function setupAdapter($classOrInterface = AdapterInterface::class)
+    public function setupAdapter($additionalInterfaces = [])
     {
-        $this->prophecy = $this->prophesize($classOrInterface);
+        $this->prophecy = $this->prophesize(AdapterInterface::class);
+        foreach ($additionalInterfaces as $interface) {
+            $this->prophecy->willImplement($interface);
+        }
         $this->adapter = $this->prophecy->reveal();
         $this->filesystemConfig = new Config();
         $this->filesystem = new Filesystem($this->adapter, $this->filesystemConfig);
@@ -103,7 +106,7 @@ class FilesystemTests extends \PHPUnit_Framework_TestCase
 
         // don't use the default adapter, create one implementing StreamInterfaceAdapterInterface
         /** @var AdapterInterface $adapter */
-        $this->setupAdapter(WritingInterface::class);
+        $this->setupAdapter([WritingInterface::class]);
         $this->prophecy->has($path)->willReturn(false);
         $this->prophecy->writeStreamInterface($path, $stream, $this->config)->willReturn(compact('path'));
 
@@ -134,7 +137,7 @@ class FilesystemTests extends \PHPUnit_Framework_TestCase
     public function testUpdateStreamInterface()
     {
         // make the adapter in use support stream interfaces
-        $this->setupAdapter(WritingInterface::class);
+        $this->setupAdapter([WritingInterface::class]);
 
         $path = 'path.txt';
         $stream = Psr7\stream_for(tmpfile());
@@ -166,7 +169,7 @@ class FilesystemTests extends \PHPUnit_Framework_TestCase
 
     public function testPutNewStreamInterface()
     {
-        $this->setupAdapter(WritingInterface::class);
+        $this->setupAdapter([WritingInterface::class]);
 
         $path = 'path.txt';
         $stream = Psr7\stream_for(tmpfile());
@@ -198,7 +201,7 @@ class FilesystemTests extends \PHPUnit_Framework_TestCase
 
     public function testPutUpdateStreamInterface()
     {
-        $this->setupAdapter(WritingInterface::class);
+        $this->setupAdapter([WritingInterface::class]);
 
         $path = 'path.txt';
         $stream = Psr7\stream_for(tmpfile());
@@ -289,7 +292,7 @@ class FilesystemTests extends \PHPUnit_Framework_TestCase
     public function testReadStreamInterfaceSupportedAdaptor()
     {
         // as with self::testReadStreamInterface except the adaptor implements ReadInterface
-        $this->setupAdapter(ReadingInterface::class);
+        $this->setupAdapter([ReadingInterface::class]);
 
         $path = 'path.txt';
         $output = Psr7\stream_for('__CONTENTS__');

@@ -11,7 +11,7 @@ namespace League\Flysystem\Adapter\StreamInterface;
 use League\Flysystem\AdapterInterface;
 use Psr\Http\Message\StreamInterface;
 
-interface ReadingInterface extends AdapterInterface
+interface ReadingInterface
 {
     /**
      * Read a file as a StreamInterface.

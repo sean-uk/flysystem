@@ -9,10 +9,9 @@
 namespace League\Flysystem\Adapter\StreamInterface;
 
 use Psr\Http\Message\StreamInterface;
-use League\Flysystem\AdapterInterface;
 use League\Flysystem\Config;
 
-interface WritingInterface extends AdapterInterface
+interface WritingInterface
 {
     /**
      * Write a new file using a StreamInterface
