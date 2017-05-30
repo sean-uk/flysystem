@@ -8,7 +8,7 @@ use League\Flysystem\Util;
 trait StreamedWritingTrait
 {
     /**
-     * Stream fallback delegator.
+     * StreamInterface fallback delegator.
      *
      * @param string   $path
      * @param resource $resource

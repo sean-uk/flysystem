@@ -7,7 +7,8 @@ use Prophecy\Argument;
 use Prophecy\Argument\Token\TypeToken;
 use Prophecy\Prophecy\ObjectProphecy;
 use GuzzleHttp\Psr7;
-use League\Flysystem\StreamInterfaceAdapterInterface;
+use League\Flysystem\Adapter\StreamInterface\WritingInterface;
+use League\Flysystem\Adapter\StreamInterface\ReadingInterface;
 use League\Flysystem\AdapterInterface;
 
 class FilesystemTests extends \PHPUnit_Framework_TestCase
@@ -38,7 +39,7 @@ class FilesystemTests extends \PHPUnit_Framework_TestCase
     private $filesystemConfig;
 
     /**
-     * @param string $implements
+     * @param string $classOrInterface the class / interface the adaptor should implement
      *
      * @before
      */
@@ -102,7 +103,7 @@ class FilesystemTests extends \PHPUnit_Framework_TestCase
 
         // don't use the default adapter, create one implementing StreamInterfaceAdapterInterface
         /** @var AdapterInterface $adapter */
-        $this->setupAdapter(StreamInterfaceAdapterInterface::class);
+        $this->setupAdapter(WritingInterface::class);
         $this->prophecy->has($path)->willReturn(false);
         $this->prophecy->writeStreamInterface($path, $stream, $this->config)->willReturn(compact('path'));
 
@@ -133,7 +134,7 @@ class FilesystemTests extends \PHPUnit_Framework_TestCase
     public function testUpdateStreamInterface()
     {
         // make the adapter in use support stream interfaces
-        $this->setupAdapter(StreamInterfaceAdapterInterface::class);
+        $this->setupAdapter(WritingInterface::class);
 
         $path = 'path.txt';
         $stream = Psr7\stream_for(tmpfile());
@@ -165,7 +166,7 @@ class FilesystemTests extends \PHPUnit_Framework_TestCase
 
     public function testPutNewStreamInterface()
     {
-        $this->setupAdapter(StreamInterfaceAdapterInterface::class);
+        $this->setupAdapter(WritingInterface::class);
 
         $path = 'path.txt';
         $stream = Psr7\stream_for(tmpfile());
@@ -197,7 +198,7 @@ class FilesystemTests extends \PHPUnit_Framework_TestCase
 
     public function testPutUpdateStreamInterface()
     {
-        $this->setupAdapter(StreamInterfaceAdapterInterface::class);
+        $this->setupAdapter(WritingInterface::class);
 
         $path = 'path.txt';
         $stream = Psr7\stream_for(tmpfile());
@@ -272,6 +273,38 @@ class FilesystemTests extends \PHPUnit_Framework_TestCase
         $this->prophecy->has($path)->willReturn(true);
         $this->prophecy->readStream($path)->willReturn(false);
         $response = $this->filesystem->readStream($path);
+        $this->assertFalse($response);
+    }
+
+    public function testReadStreamInterface()
+    {
+        $path = 'path.txt';
+        $output = '__CONTENTS__';
+        $this->prophecy->has($path)->willReturn(true);
+        $this->prophecy->readStream($path)->willReturn(['stream' => $output]);
+        $response = $this->filesystem->readStreamInterface($path);
+        $this->assertEquals((string)$response, $output);
+    }
+
+    public function testReadStreamInterfaceSupportedAdaptor()
+    {
+        // as with self::testReadStreamInterface except the adaptor implements ReadInterface
+        $this->setupAdapter(ReadingInterface::class);
+
+        $path = 'path.txt';
+        $output = Psr7\stream_for('__CONTENTS__');
+        $this->prophecy->has($path)->willReturn(true);
+        $this->prophecy->readStreamInterface($path)->willReturn(['stream' => $output]);
+        $response = $this->filesystem->readStreamInterface($path);
+        $this->assertEquals((string)$response, $output);
+    }
+
+    public function testReadStreamInterfaceFail()
+    {
+        $path = 'path.txt';
+        $this->prophecy->has($path)->willReturn(true);
+        $this->prophecy->readStream($path)->willReturn(false);
+        $response = $this->filesystem->readStreamInterface($path);
         $this->assertFalse($response);
     }
 

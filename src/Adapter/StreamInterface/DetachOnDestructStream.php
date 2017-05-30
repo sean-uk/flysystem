@@ -6,7 +6,7 @@
  * Time: 19:34
  */
 
-namespace League\Flysystem\Stream;
+namespace League\Flysystem\Adapter\StreamInterface;
 
 use GuzzleHttp\Psr7\StreamDecoratorTrait;
 use Psr\Http\Message\StreamInterface;
@@ -17,7 +17,7 @@ use Psr\Http\Message\StreamInterface;
  * until it's explicitly closed.
  *
  * Class DetachOnDestructStream
- * @package League\Flysystem\Stream
+ * @package League\Flysystem\StreamInterface
  */
 class DetachOnDestructStream implements StreamInterface
 {

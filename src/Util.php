@@ -3,7 +3,7 @@
 namespace League\Flysystem;
 
 use GuzzleHttp\Psr7;
-use League\Flysystem\Stream\DetachOnDestructStream;
+use League\Flysystem\Adapter\StreamInterface\DetachOnDestructStream;
 use League\Flysystem\Util\MimeType;
 use LogicException;
 use Psr\Http\Message\StreamInterface;

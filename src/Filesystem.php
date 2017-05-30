@@ -7,6 +7,9 @@ use League\Flysystem\Adapter\CanOverwriteFiles;
 use League\Flysystem\Plugin\PluggableTrait;
 use League\Flysystem\Util\ContentListingFormatter;
 use Psr\Http\Message\StreamInterface;
+use League\Flysystem\Adapter\StreamInterface\WritingInterface;
+use League\Flysystem\Adapter\StreamInterface\ReadingInterface;
+use GuzzleHttp\Psr7;
 
 /**
  * @method array getWithMetadata(string $path, array $metadata)
@@ -85,7 +88,7 @@ class Filesystem implements FilesystemInterface
         Util::rewindStream($stream);
 
         $adapter = $this->getAdapter();
-        if ($adapter instanceof StreamInterfaceAdapterInterface) {
+        if ($adapter instanceof Adapter\StreamInterface\WritingInterface) {
             $stream = Util::ensureStreamInterface($stream);
             return (bool) $adapter->writeStreamInterface($path, $stream, $config);
         }
@@ -121,7 +124,7 @@ class Filesystem implements FilesystemInterface
         $config = $this->prepareConfig($config);
         Util::rewindStream($stream);
 
-        $isStreamInterfaceAdapter = ($this->getAdapter() instanceof StreamInterfaceAdapterInterface);
+        $isStreamInterfaceAdapter = ($this->getAdapter() instanceof Adapter\StreamInterface\WritingInterface);
 
         // @todo this 4-way condition seems a little clumsy
         if ($isStreamInterfaceAdapter) {
@@ -185,7 +188,7 @@ class Filesystem implements FilesystemInterface
         $this->assertPresent($path);
         Util::rewindStream($stream);
 
-        if ($this->getAdapter() instanceof StreamInterfaceAdapterInterface) {
+        if ($this->getAdapter() instanceof Adapter\StreamInterface\WritingInterface) {
             $stream = Util::ensureStreamInterface($stream);
             return (bool) $this->getAdapter()->updateStreamInterface($path, $stream, $config);
         }
@@ -221,6 +224,28 @@ class Filesystem implements FilesystemInterface
         }
 
         return $object['stream'];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function readStreamInterface($path)
+    {
+        if ($this->adapter instanceof Adapter\StreamInterface\ReadingInterface) {
+            $object = $this->adapter->readStreamInterface($path);
+        } else {
+            $object = $this->adapter->readStream($path);
+        }
+
+        if (!$object) {
+            return false;
+        }
+
+        $stream = $object['stream'];
+        if ($stream instanceof StreamInterface) {
+            return $stream;
+        }
+        return Psr7\stream_for($stream);
     }
 
     /**

@@ -6,11 +6,13 @@
  * Time: 19:51
  */
 
-namespace League\Flysystem;
+namespace League\Flysystem\Adapter\StreamInterface;
 
 use Psr\Http\Message\StreamInterface;
+use League\Flysystem\AdapterInterface;
+use League\Flysystem\Config;
 
-interface StreamInterfaceAdapterInterface extends AdapterInterface
+interface WritingInterface extends AdapterInterface
 {
     /**
      * Write a new file using a StreamInterface

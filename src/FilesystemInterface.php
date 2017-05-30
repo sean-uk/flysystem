@@ -38,6 +38,18 @@ interface FilesystemInterface
     public function readStream($path);
 
     /**
+     * Retrieves a read StreamInterface for a path.
+     * If the adaptor doesn't support this then the read resource will be wrapped in a high level interface
+     *
+     * @param string $path The path to the file.
+     *
+     * @throws FileNotFoundException
+     *
+     * @return StreamInterface|false The path resource or false on failure.
+     */
+    public function readStreamInterface($path);
+
+    /**
      * List contents of a directory.
      *
      * @param string $directory The directory to list.
@@ -239,7 +251,7 @@ interface FilesystemInterface
      * Create a file or update if exists.
      *
      * @param string   $path     The path to the file.
-     * @param StreamInterface|resource $stream a StreamInferface to a file handle,
+     * @param StreamInterface|resource $stream a StreamInterface to a file handle,
      *      or a stream resource of type stream
      * @param array    $config   An optional configuration array.
      *

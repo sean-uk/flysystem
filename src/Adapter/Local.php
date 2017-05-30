@@ -5,12 +5,11 @@ namespace League\Flysystem\Adapter;
 use DirectoryIterator;
 use FilesystemIterator;
 use finfo as Finfo;
-use GuzzleHttp\Psr7\Stream;
 use League\Flysystem\AdapterInterface;
 use League\Flysystem\Config;
 use League\Flysystem\Exception;
 use League\Flysystem\NotSupportedException;
-use League\Flysystem\StreamInterfaceAdapterInterface;
+use League\Flysystem\Adapter\StreamInterface\WritingInterface;
 use League\Flysystem\UnreadableFileException;
 use League\Flysystem\Util;
 use LogicException;
@@ -20,7 +19,7 @@ use RecursiveIteratorIterator;
 use SplFileInfo;
 use GuzzleHttp\Psr7;
 
-class Local extends AbstractAdapter implements StreamInterfaceAdapterInterface
+class Local extends AbstractAdapter implements WritingInterface
 {
     /**
      * @var int
