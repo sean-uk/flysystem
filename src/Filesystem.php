@@ -7,8 +7,7 @@ use League\Flysystem\Adapter\CanOverwriteFiles;
 use League\Flysystem\Plugin\PluggableTrait;
 use League\Flysystem\Util\ContentListingFormatter;
 use Psr\Http\Message\StreamInterface;
-use League\Flysystem\Adapter\StreamInterface\WritingInterface;
-use League\Flysystem\Adapter\StreamInterface\ReadingInterface;
+use League\Flysystem\InterfaceStreaming;
 use GuzzleHttp\Psr7;
 
 /**
@@ -88,7 +87,7 @@ class Filesystem implements FilesystemInterface
         Util::rewindStream($stream);
 
         $adapter = $this->getAdapter();
-        if ($adapter instanceof Adapter\StreamInterface\WritingInterface) {
+        if ($adapter instanceof InterfaceStreaming\WritingInterface) {
             $stream = Util::ensureStreamInterface($stream);
             return (bool) $adapter->writeStreamInterface($path, $stream, $config);
         }
@@ -124,7 +123,7 @@ class Filesystem implements FilesystemInterface
         $config = $this->prepareConfig($config);
         Util::rewindStream($stream);
 
-        $isStreamInterfaceAdapter = ($this->getAdapter() instanceof Adapter\StreamInterface\WritingInterface);
+        $isStreamInterfaceAdapter = ($this->getAdapter() instanceof InterfaceStreaming\WritingInterface);
 
         // @todo this 4-way condition seems a little clumsy
         if ($isStreamInterfaceAdapter) {
@@ -188,7 +187,7 @@ class Filesystem implements FilesystemInterface
         $this->assertPresent($path);
         Util::rewindStream($stream);
 
-        if ($this->getAdapter() instanceof Adapter\StreamInterface\WritingInterface) {
+        if ($this->getAdapter() instanceof InterfaceStreaming\WritingInterface) {
             $stream = Util::ensureStreamInterface($stream);
             return (bool) $this->getAdapter()->updateStreamInterface($path, $stream, $config);
         }
@@ -231,7 +230,7 @@ class Filesystem implements FilesystemInterface
      */
     public function readStreamInterface($path)
     {
-        if ($this->adapter instanceof Adapter\StreamInterface\ReadingInterface) {
+        if ($this->adapter instanceof InterfaceStreaming\ReadingInterface) {
             $object = $this->adapter->readStreamInterface($path);
         } else {
             $object = $this->adapter->readStream($path);

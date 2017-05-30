@@ -6,18 +6,18 @@
  * Time: 19:34
  */
 
-namespace League\Flysystem\Adapter\StreamInterface;
+namespace League\Flysystem\InterfaceStreaming;
 
 use GuzzleHttp\Psr7\StreamDecoratorTrait;
 use Psr\Http\Message\StreamInterface;
 
 /**
- * This is a workaround for use when wrapping stream resources in a StreamInterface.
+ * This is a workaround for use when wrapping stream resources in a InterfaceStreaming.
  * It detaches on destruct, so that the resource isn't automatically closed and should still be usable
  * until it's explicitly closed.
  *
  * Class DetachOnDestructStream
- * @package League\Flysystem\StreamInterface
+ * @package League\Flysystem\InterfaceStreaming
  */
 class DetachOnDestructStream implements StreamInterface
 {

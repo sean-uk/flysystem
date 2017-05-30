@@ -7,8 +7,8 @@ use Prophecy\Argument;
 use Prophecy\Argument\Token\TypeToken;
 use Prophecy\Prophecy\ObjectProphecy;
 use GuzzleHttp\Psr7;
-use League\Flysystem\Adapter\StreamInterface\WritingInterface;
-use League\Flysystem\Adapter\StreamInterface\ReadingInterface;
+use League\Flysystem\InterfaceStreaming\WritingInterface;
+use League\Flysystem\InterfaceStreaming\ReadingInterface;
 use League\Flysystem\AdapterInterface;
 
 class FilesystemTests extends \PHPUnit_Framework_TestCase

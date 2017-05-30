@@ -6,7 +6,7 @@
  * Time: 19:51
  */
 
-namespace League\Flysystem\Adapter\StreamInterface;
+namespace League\Flysystem\InterfaceStreaming;
 
 use Psr\Http\Message\StreamInterface;
 use League\Flysystem\Config;
@@ -14,7 +14,7 @@ use League\Flysystem\Config;
 interface WritingInterface
 {
     /**
-     * Write a new file using a StreamInterface
+     * Write a new file using a InterfaceStreaming
      *
      * @param $path
      * @param StreamInterface $stream
@@ -24,7 +24,7 @@ interface WritingInterface
     public function writeStreamInterface($path, StreamInterface $stream, Config $config);
 
     /**
-     * Update a file using a StreamInterface.
+     * Update a file using a InterfaceStreaming.
      *
      * @param $path
      * @param StreamInterface $stream

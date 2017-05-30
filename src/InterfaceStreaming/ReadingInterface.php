@@ -6,7 +6,7 @@
  * Time: 20:23
  */
 
-namespace League\Flysystem\Adapter\StreamInterface;
+namespace League\Flysystem\InterfaceStreaming;
 
 use League\Flysystem\AdapterInterface;
 use Psr\Http\Message\StreamInterface;
@@ -14,7 +14,7 @@ use Psr\Http\Message\StreamInterface;
 interface ReadingInterface
 {
     /**
-     * Read a file as a StreamInterface.
+     * Read a file as a InterfaceStreaming.
      *
      * @param string $path
      *
