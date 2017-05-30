@@ -9,7 +9,7 @@ use League\Flysystem\AdapterInterface;
 use League\Flysystem\Config;
 use League\Flysystem\Exception;
 use League\Flysystem\NotSupportedException;
-use League\Flysystem\InterfaceStreaming\WritingInterface;
+use League\Flysystem\InterfaceStreaming;
 use League\Flysystem\UnreadableFileException;
 use League\Flysystem\Util;
 use LogicException;
@@ -19,7 +19,7 @@ use RecursiveIteratorIterator;
 use SplFileInfo;
 use GuzzleHttp\Psr7;
 
-class Local extends AbstractAdapter implements WritingInterface
+class Local extends AbstractAdapter implements InterfaceStreaming\WritingInterface
 {
     /**
      * @var int
@@ -188,7 +188,7 @@ class Local extends AbstractAdapter implements WritingInterface
 
         Psr7\copy_to_stream($stream, $outputStream);
 
-        // not using just InterfaceStreaming::close because of the need to get the return value to know if it worked.
+        // not using just StreamInterface::close because of the need to get the return value to know if it worked.
         if (!fclose($outputResource)) {
             return false;
         }

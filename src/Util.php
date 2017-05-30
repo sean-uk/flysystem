@@ -299,19 +299,19 @@ class Util
      * @param resource|StreamInterface $stream
      * @return StreamInterface
      *
-     * @throws InvalidArgumentException if $stream is not a resource or already a InterfaceStreaming
+     * @throws InvalidArgumentException if $stream is not a resource or already a StreamInterface
      * @todo perhaps it should be configurable what type of stream is returned here?
      * @todo UNIT TESTS FOR THIS!
      */
     public static function ensureStreamInterface($stream)
     {
-        // already a InterfaceStreaming? nothing to do!
+        // already a StreamInterface? nothing to do!
         if ($stream instanceof StreamInterface) {
             return $stream;
         }
 
         if (!is_resource($stream)) {
-            throw new InvalidArgumentException(__METHOD__ . ' expects argument #1 to be a valid resource or InterfaceStreaming.');
+            throw new InvalidArgumentException(__METHOD__ . ' expects argument #1 to be a valid resource or StreamInterface.');
         }
 
         // get a stream object for it
@@ -322,7 +322,7 @@ class Util
     }
 
     /**
-     * Rewind a stream resource or InterfaceStreaming, if it is seekable
+     * Rewind a stream resource or StreamInterface, if it is seekable
      *
      * @param $stream
      */
@@ -372,7 +372,7 @@ class Util
     }
 
     /**
-     * Rewind a InterfaceStreaming, if it is seekable.
+     * Rewind a StreamInterface, if it is seekable.
      *
      * @param StreamInterface|resource $stream
      */

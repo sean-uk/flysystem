@@ -14,7 +14,7 @@ use League\Flysystem\Config;
 interface WritingInterface
 {
     /**
-     * Write a new file using a InterfaceStreaming
+     * Write a new file using a StreamInterface
      *
      * @param $path
      * @param StreamInterface $stream
@@ -24,7 +24,7 @@ interface WritingInterface
     public function writeStreamInterface($path, StreamInterface $stream, Config $config);
 
     /**
-     * Update a file using a InterfaceStreaming.
+     * Update a file using a StreamInterface.
      *
      * @param $path
      * @param StreamInterface $stream

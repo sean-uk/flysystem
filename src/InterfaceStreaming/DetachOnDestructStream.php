@@ -12,12 +12,12 @@ use GuzzleHttp\Psr7\StreamDecoratorTrait;
 use Psr\Http\Message\StreamInterface;
 
 /**
- * This is a workaround for use when wrapping stream resources in a InterfaceStreaming.
+ * This is a workaround for use when wrapping stream resources in a StreamInterface.
  * It detaches on destruct, so that the resource isn't automatically closed and should still be usable
  * until it's explicitly closed.
  *
  * Class DetachOnDestructStream
- * @package League\Flysystem\InterfaceStreaming
+ * @package League\Flysystem\StreamInterface
  */
 class DetachOnDestructStream implements StreamInterface
 {
