@@ -21,6 +21,8 @@ use GuzzleHttp\Psr7;
 
 class Local extends AbstractAdapter implements InterfaceStreaming\WritingInterface
 {
+    use InterfaceStreaming\Polyfill\InterfaceStreamedWritingTrait;
+
     /**
      * @var int
      */
@@ -151,7 +153,7 @@ class Local extends AbstractAdapter implements InterfaceStreaming\WritingInterfa
     {
         $location = $this->applyPathPrefix($path);
         $this->ensureDirectory(dirname($location));
-        $stream = fopen($location, 'w+b');
+        $stream = $this->getOutputResource($location);
 
         if ( ! $stream) {
             return false;
@@ -173,34 +175,12 @@ class Local extends AbstractAdapter implements InterfaceStreaming\WritingInterfa
     }
 
     /**
-     * @inheritdoc
+     * @param string $location
+     * @return resource a writable stream resource for output
      */
-    public function writeStreamInterface($path, StreamInterface $stream, Config $config)
+    protected function getOutputResource($location)
     {
-        $location = $this->applyPathPrefix($path);
-        $this->ensureDirectory(dirname($location));
-        $outputResource = fopen($location, 'w+b');
-        if (!$outputResource) {
-            return false;
-        }
-
-        $outputStream = Util::ensureStreamInterface($outputResource);
-
-        Psr7\copy_to_stream($stream, $outputStream);
-
-        // not using just StreamInterface::close because of the need to get the return value to know if it worked.
-        if (!fclose($outputResource)) {
-            return false;
-        }
-        $outputStream->close();
-
-        if ($visibility = $config->get('visibility')) {
-            $this->setVisibility($path, $visibility);
-        }
-
-        $type = 'file';
-
-        return compact('type', 'path', 'visibility');
+        return fopen($location, 'w+b');
     }
 
     /**
