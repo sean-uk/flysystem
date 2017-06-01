@@ -2,13 +2,13 @@
 
 namespace League\Flysystem;
 
+use Hoa\Stringbuffer;
 use InvalidArgumentException;
 use League\Flysystem\Adapter\CanOverwriteFiles;
 use League\Flysystem\Plugin\PluggableTrait;
 use League\Flysystem\Util\ContentListingFormatter;
 use Psr\Http\Message\StreamInterface;
 use League\Flysystem\InterfaceStreaming;
-use GuzzleHttp\Psr7;
 
 /**
  * @method array getWithMetadata(string $path, array $metadata)
@@ -244,7 +244,9 @@ class Filesystem implements FilesystemInterface
         if ($stream instanceof StreamInterface) {
             return $stream;
         }
-        return Psr7\stream_for($stream);
+        $readStream = new Stringbuffer\Read();
+        $readStream->initializeWith()
+        return new Read();
     }
 
     /**
