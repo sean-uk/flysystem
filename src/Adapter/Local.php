@@ -151,9 +151,7 @@ class Local extends AbstractAdapter implements InterfaceStreaming\WritingInterfa
      */
     public function writeStream($path, $resource, Config $config)
     {
-        $location = $this->applyPathPrefix($path);
-        $this->ensureDirectory(dirname($location));
-        $stream = $this->getOutputResource($location);
+        $stream = $this->getOutputResource($path);
 
         if ( ! $stream) {
             return false;
@@ -175,11 +173,13 @@ class Local extends AbstractAdapter implements InterfaceStreaming\WritingInterfa
     }
 
     /**
-     * @param string $location
-     * @return resource a writable stream resource for output
+     * @param string $path
+     * @return resource|false a writable stream resource for output
      */
-    protected function getOutputResource($location)
+    protected function getOutputResource($path)
     {
+        $location = $this->applyPathPrefix($path);
+        $this->ensureDirectory(dirname($location));
         return fopen($location, 'w+b');
     }
 

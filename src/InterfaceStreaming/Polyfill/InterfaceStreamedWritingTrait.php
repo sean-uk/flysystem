@@ -20,9 +20,7 @@ trait InterfaceStreamedWritingTrait
      */
     public function writeStreamInterface($path, StreamInterface $stream, Config $config)
     {
-        $location = $this->applyPathPrefix($path);
-        $this->ensureDirectory(dirname($location));
-        $outputResource = $this->getOutputResource($location);
+        $outputResource = $this->getOutputResource($path);
         if (!$outputResource) {
             return false;
         }
@@ -47,9 +45,13 @@ trait InterfaceStreamedWritingTrait
     }
 
     /**
-     * @param string $location
-     * @param string $mode
-     * @return resource
+     * @param string $path
+     * @return resource|false
      */
-    abstract protected function getOutputResource($location);
+    abstract protected function getOutputResource($path);
+
+    /**
+     * @see \League\Flysystem\AdapterInterface::setVisibility
+     */
+    abstract public function setVisibility($path, $visibility);
 }
