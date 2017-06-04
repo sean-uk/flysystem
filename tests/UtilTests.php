@@ -2,6 +2,10 @@
 
 namespace League\Flysystem;
 
+use Psr\Http\Message\StreamInterface;
+use GuzzleHttp\Psr7;
+use InvalidArgumentException;
+
 class UtilTests extends \PHPUnit_Framework_TestCase
 {
     public function testEmulateDirectories()
@@ -170,5 +174,43 @@ class UtilTests extends \PHPUnit_Framework_TestCase
     {
         $this->assertEquals('test/', Util::normalizePrefix('test', '/'));
         $this->assertEquals('test/', Util::normalizePrefix('test/', '/'));
+    }
+
+    public function testEnsureStreamInterfaceNonResource()
+    {
+        $this->setExpectedException(InvalidArgumentException::class);
+        Util::ensureStreamInterface('not a resource');
+    }
+
+    public function testEnsureStreamInterfaceResource()
+    {
+        $stream = tmpfile();
+        $result = Util::ensureStreamInterface($stream);
+
+        fclose($stream);
+        $this->assertInstanceOf(StreamInterface::class, $result);
+    }
+
+    public function testEnsureStreamInterfaceAlreadyInteface()
+    {
+        $stream = Psr7\stream_for(tmpfile());
+        $result = Util::ensureStreamInterface($stream);
+
+        $stream->close();
+
+        $this->assertInstanceOf(StreamInterface::class, $stream);
+        $this->assertEquals($stream, $result);  // the original object should have been returned unchanged.
+    }
+
+    public function testEnsureStreamInterfaceNonStreamResource()
+    {
+        if (!extension_loaded('xml')) {
+            $this->markTestSkipped("Skipping test, XML lib not loaded.");
+        }
+
+        $resource = xml_parser_create();
+
+        $this->setExpectedException(InvalidArgumentException::class);
+        Util::ensureStreamInterface($resource);
     }
 }

@@ -299,9 +299,8 @@ class Util
      * @param resource|StreamInterface $stream
      * @return StreamInterface
      *
-     * @throws InvalidArgumentException if $stream is not a resource or already a StreamInterface
+     * @throws InvalidArgumentException if $stream is not a stream resource or already a StreamInterface
      * @todo perhaps it should be configurable what type of stream is returned here?
-     * @todo UNIT TESTS FOR THIS!
      */
     public static function ensureStreamInterface($stream)
     {
@@ -310,8 +309,8 @@ class Util
             return $stream;
         }
 
-        if (!is_resource($stream)) {
-            throw new InvalidArgumentException(__METHOD__ . ' expects argument #1 to be a valid resource or StreamInterface.');
+        if (!is_resource($stream) || get_resource_type($stream)!=='stream') {
+            throw new InvalidArgumentException(__METHOD__ . ' expects argument #1 to be a valid stream resource or StreamInterface.');
         }
 
         // get a stream object for it
