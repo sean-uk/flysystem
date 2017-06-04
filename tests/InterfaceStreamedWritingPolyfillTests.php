@@ -62,6 +62,30 @@ class InterfaceStreamedWritingPolyfillTests extends PHPUnit_Framework_TestCase
         $this->assertFalse($response);
     }
 
+    public function testWriteOnOutputResourceCloseFail()
+    {
+        $stream = Psr7\stream_for(tmpfile());
+        $outputResource = fopen('fail.close', 'w+b');
+
+        /** @var InterfaceStreamedWritingTrait $implementor */
+        $implementor = $this
+            ->getMockBuilder(InterfaceStreamedWritingTrait::class)
+            ->setMethods(['getOutputResource', 'setVisibility', 'closeOutputResource'])
+            ->getMockForTrait(InterfaceStreamedWritingTrait::class);
+        $implementor
+            ->method('getOutputResource')
+            ->willReturn($outputResource);
+        $implementor
+            ->method('closeOutputResource')
+            ->willReturn(false);
+
+        $response = $implementor->writeStreamInterface('file.extension', $stream, new Config());
+
+        $stream->close();
+
+        $this->assertFalse($response);
+    }
+
     public function testWriteVisibilySet()
     {
         $stream = Psr7\stream_for(tmpfile());

@@ -30,7 +30,7 @@ trait InterfaceStreamedWritingTrait
         Psr7\copy_to_stream($stream, $outputStream);
 
         // not using just StreamInterface::close because of the need to get the return value to know if it worked.
-        if (!fclose($outputResource)) {
+        if (!$this->closeOutputResource($outputResource)) {
             return false;
         }
         $outputStream->close();
@@ -42,6 +42,15 @@ trait InterfaceStreamedWritingTrait
         $type = 'file';
 
         return compact('type', 'path', 'visibility');
+    }
+
+    /**
+     * @param $resource
+     * @return bool
+     */
+    protected function closeOutputResource($resource)
+    {
+        return fclose($resource);
     }
 
     /**
