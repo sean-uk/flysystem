@@ -2,6 +2,7 @@
 
 namespace League\Flysystem;
 
+use Hoa\Stringbuffer;
 use InvalidArgumentException;
 use League\Flysystem\Adapter\CanOverwriteFiles;
 use League\Flysystem\Plugin\PluggableTrait;
