@@ -11,7 +11,7 @@ namespace League\Flysystem\Adapter;
 use League\Flysystem\AdapterInterface;
 use League\Flysystem\Config;
 use League\Flysystem\InterfaceStreaming\Polyfill\InterfaceStreamedWritingTrait;
-use GuzzleHttp\Psr7;
+use League\Flysystem\InterfaceStreaming\ResourceStream;
 use PHPUnit_Framework_TestCase;
 
 /**
@@ -25,7 +25,7 @@ class InterfaceStreamedWritingPolyfillTests extends PHPUnit_Framework_TestCase
     public function testWrite()
     {
         // the stream inferface i'm trying to write
-        $stream = Psr7\stream_for(tmpfile());
+        $stream = new ResourceStream(null, tmpfile());
 
         // the actual output resource that'll be written to
         $outputResource = tmpfile();
@@ -38,8 +38,6 @@ class InterfaceStreamedWritingPolyfillTests extends PHPUnit_Framework_TestCase
 
         $response = $implementor->writeStreamInterface('file.extension', $stream, new Config());
 
-        $stream->close();
-
         $this->assertTrue(is_array($response));
         $this->assertEquals('file', $response['type']);
         $this->assertEquals('file.extension', $response['path']);
@@ -47,7 +45,7 @@ class InterfaceStreamedWritingPolyfillTests extends PHPUnit_Framework_TestCase
 
     public function testWriteOnOutputResourceFail()
     {
-        $stream = Psr7\stream_for(tmpfile());
+        $stream = new ResourceStream(null, tmpfile());
 
         /** @var InterfaceStreamedWritingTrait $implementor */
         $implementor = $this->getMockForTrait(InterfaceStreamedWritingTrait::class);
@@ -57,14 +55,12 @@ class InterfaceStreamedWritingPolyfillTests extends PHPUnit_Framework_TestCase
 
         $response = $implementor->writeStreamInterface('file.extension', $stream, new Config());
 
-        $stream->close();
-
         $this->assertFalse($response);
     }
 
     public function testWriteOnOutputResourceCloseFail()
     {
-        $stream = Psr7\stream_for(tmpfile());
+        $stream = new ResourceStream(null, tmpfile());
         $outputResource = fopen('fail.close', 'w+b');
 
         /** @var InterfaceStreamedWritingTrait $implementor */
@@ -81,14 +77,12 @@ class InterfaceStreamedWritingPolyfillTests extends PHPUnit_Framework_TestCase
 
         $response = $implementor->writeStreamInterface('file.extension', $stream, new Config());
 
-        $stream->close();
-
         $this->assertFalse($response);
     }
 
     public function testWriteVisibilySet()
     {
-        $stream = Psr7\stream_for(tmpfile());
+        $stream = new ResourceStream(null, tmpfile());
         $outputResource = tmpfile();
 
         $config = new Config();
@@ -110,7 +104,5 @@ class InterfaceStreamedWritingPolyfillTests extends PHPUnit_Framework_TestCase
             );
 
         $implementor->writeStreamInterface('file.extension', $stream, $config);
-
-        $stream->close();
     }
 }

@@ -2,11 +2,11 @@
 
 namespace League\Flysystem;
 
-use GuzzleHttp\Psr7;
-use League\Flysystem\InterfaceStreaming\DetachOnDestructStream;
+use Hoa\Stream\IStream\Pointable;
+use Hoa\Stream\IStream\Stream;
+use League\Flysystem\InterfaceStreaming\ResourceStream;
 use League\Flysystem\Util\MimeType;
 use LogicException;
-use Psr\Http\Message\StreamInterface;
 use InvalidArgumentException;
 
 class Util
@@ -296,32 +296,29 @@ class Util
     /**
      * Get a high level stream interface for a stream resource, if it is not already one.
      *
-     * @param resource|StreamInterface $stream
-     * @return StreamInterface
+     * @param resource|Stream $stream
+     * @return Stream
      *
-     * @throws InvalidArgumentException if $stream is not a stream resource or already a StreamInterface
-     * @todo perhaps it should be configurable what type of stream is returned here?
+     * @throws InvalidArgumentException if $stream is not a stream resource or already a Stream
      */
     public static function ensureStreamInterface($stream)
     {
-        // already a StreamInterface? nothing to do!
-        if ($stream instanceof StreamInterface) {
+        // already a stream interface? nothing to do!
+        if ($stream instanceof Stream) {
             return $stream;
         }
 
         if (!is_resource($stream) || get_resource_type($stream)!=='stream') {
-            throw new InvalidArgumentException(__METHOD__ . ' expects argument #1 to be a valid stream resource or StreamInterface.');
+            throw new InvalidArgumentException(__METHOD__ . ' expects argument #1 to be a valid stream resource or Stream instance.');
         }
 
         // get a stream object for it
-        $streamObject = Psr7\stream_for($stream);
-        $decoratedStreamObject = new DetachOnDestructStream($streamObject);
-
-        return $decoratedStreamObject;
+        $stream = new ResourceStream(null, $stream);
+        return $stream;
     }
 
     /**
-     * Rewind a stream resource or StreamInterface, if it is seekable
+     * Rewind a stream resource or Stream instance, if it is seekable
      *
      * @param $stream
      */
@@ -331,7 +328,7 @@ class Util
             self::rewindStreamResource($stream);
             return;
         }
-        if ($stream instanceof StreamInterface) {
+        if ($stream instanceof Pointable) {
             self::rewindStreamInterface($stream);
         }
     }
@@ -364,23 +361,20 @@ class Util
         if (is_resource($stream)) {
             return true;
         }
-        if ($stream instanceof StreamInterface) {
+        if ($stream instanceof Stream) {
             return true;
         }
         return false;
     }
 
     /**
-     * Rewind a StreamInterface, if it is seekable.
+     * Rewind a Stream
      *
-     * @param StreamInterface|resource $stream
+     * @param Pointable $stream
      */
-    public static function rewindStreamInterface($stream)
+    public static function rewindStreamInterface(Pointable $stream)
     {
-        /** @var StreamInterface $stream */
-        $stream = self::ensureStreamInterface($stream);
-
-        if ($stream->tell() !== 0 && $stream->isSeekable()) {
+        if ($stream->tell() !== 0) {
             $stream->rewind();
         }
     }

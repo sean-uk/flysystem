@@ -8,28 +8,28 @@
 
 namespace League\Flysystem\InterfaceStreaming;
 
-use Psr\Http\Message\StreamInterface;
+use Hoa\Stream\IStream\In;
 use League\Flysystem\Config;
 
 interface WritingInterface
 {
     /**
-     * Write a new file using a StreamInterface
+     * Write a new file using an output stream interface
      *
      * @param $path
-     * @param StreamInterface $stream
+     * @param In $stream
      * @param Config $config
      * @return array|false false on failure file meta data on success
      */
-    public function writeStreamInterface($path, StreamInterface $stream, Config $config);
+    public function writeStreamInterface($path, In $stream, Config $config);
 
     /**
-     * Update a file using a StreamInterface.
+     * Update a file using an output stream interface
      *
      * @param $path
-     * @param StreamInterface $stream
+     * @param In $stream
      * @param Config $config
      * @return array|false false on failure file meta data on success
      */
-    public function updateStreamInterface($path, StreamInterface $stream, Config $config);
+    public function updateStreamInterface($path, In $stream, Config $config);
 }

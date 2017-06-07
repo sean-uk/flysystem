@@ -6,10 +6,10 @@ use League\Flysystem\Util;
 use Prophecy\Argument;
 use Prophecy\Argument\Token\TypeToken;
 use Prophecy\Prophecy\ObjectProphecy;
-use GuzzleHttp\Psr7;
 use League\Flysystem\InterfaceStreaming\WritingInterface;
 use League\Flysystem\InterfaceStreaming\ReadingInterface;
 use League\Flysystem\AdapterInterface;
+use League\Flysystem\InterfaceStreaming\ResourceStream;
 
 class FilesystemTests extends \PHPUnit_Framework_TestCase
 {
@@ -102,7 +102,7 @@ class FilesystemTests extends \PHPUnit_Framework_TestCase
     public function testWriteStreamInterface()
     {
         $path = 'path.txt';
-        $stream = Psr7\stream_for(tmpfile());
+        $stream = new ResourceStream(null, tmpfile());
 
         // don't use the default adapter, create one implementing StreamInterfaceAdapterInterface
         /** @var AdapterInterface $adapter */
@@ -112,7 +112,6 @@ class FilesystemTests extends \PHPUnit_Framework_TestCase
 
         $result = $this->filesystem->writeStream($path, $stream);
         $this->assertTrue($result);
-        $stream->close();
     }
 
     public function testUpdate()
@@ -140,7 +139,7 @@ class FilesystemTests extends \PHPUnit_Framework_TestCase
         $this->setupAdapter([WritingInterface::class]);
 
         $path = 'path.txt';
-        $stream = Psr7\stream_for(tmpfile());
+        $stream = new ResourceStream(null, tmpfile());
         $this->prophecy->has($path)->willReturn(true);
         $this->prophecy->updateStreamInterface($path, $stream, $this->config)->willReturn(compact('path'));
         $result = $this->filesystem->updateStream($path, $stream);
@@ -172,7 +171,7 @@ class FilesystemTests extends \PHPUnit_Framework_TestCase
         $this->setupAdapter([WritingInterface::class]);
 
         $path = 'path.txt';
-        $stream = Psr7\stream_for(tmpfile());
+        $stream = new ResourceStream(null, tmpfile());
         $this->prophecy->has($path)->willReturn(false);
         $this->prophecy->writeStreamInterface($path, $stream, $this->config)->willReturn(compact('path'));
         $result = $this->filesystem->putStream($path, $stream);
@@ -204,7 +203,7 @@ class FilesystemTests extends \PHPUnit_Framework_TestCase
         $this->setupAdapter([WritingInterface::class]);
 
         $path = 'path.txt';
-        $stream = Psr7\stream_for(tmpfile());
+        $stream = new ResourceStream(null, tmpfile());
         $this->prophecy->has($path)->willReturn(true);
         $this->prophecy->updateStreamInterface($path, $stream, $this->config)->willReturn(compact('path'));
         $result = $this->filesystem->putStream($path, $stream);
@@ -295,7 +294,9 @@ class FilesystemTests extends \PHPUnit_Framework_TestCase
         $this->setupAdapter([ReadingInterface::class]);
 
         $path = 'path.txt';
-        $output = Psr7\stream_for('__CONTENTS__');
+        $output = new ResourceStream(null, tmpfile());
+        $output->initializeWith('__CONTENTS__');
+
         $this->prophecy->has($path)->willReturn(true);
         $this->prophecy->readStreamInterface($path)->willReturn(['stream' => $output]);
         $response = $this->filesystem->readStreamInterface($path);

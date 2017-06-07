@@ -8,17 +8,19 @@
 
 namespace League\Flysystem\InterfaceStreaming\Polyfill;
 
-use Psr\Http\Message\StreamInterface;
+use Hoa\Stream\IStream\In;
+use Hoa\Stream\IStream\Out;
 use League\Flysystem\Config;
 use League\Flysystem\Util;
-use GuzzleHttp\Psr7;
+use RuntimeException;
 
 trait InterfaceStreamedWritingTrait
 {
     /**
      * @inheritdoc
+     * @throws RuntimeException
      */
-    public function writeStreamInterface($path, StreamInterface $stream, Config $config)
+    public function writeStreamInterface($path, In $stream, Config $config)
     {
         $outputResource = $this->getOutputResource($path);
         if (!$outputResource) {
@@ -26,14 +28,24 @@ trait InterfaceStreamedWritingTrait
         }
 
         $outputStream = Util::ensureStreamInterface($outputResource);
+        if (!$outputStream instanceof Out) {
+            throw new RuntimeException(__METHOD__ . ' failed to obtain output stream.');
+        }
 
-        Psr7\copy_to_stream($stream, $outputStream);
+        // perform the write
+        // @todo factor this out into a separate functin
+        // (based on \GuzzleHttp\Psr7\copy_to_stream)
+        $bufferSize = 1024;
+        while (!$stream->eof()) {
+            $chunk = $stream->read($bufferSize);
+            if (!$outputStream->write($chunk, strlen($chunk))) {
+                break;
+            }
+        }
 
-        // not using just StreamInterface::close because of the need to get the return value to know if it worked.
         if (!$this->closeOutputResource($outputResource)) {
             return false;
         }
-        $outputStream->close();
 
         if ($visibility = $config->get('visibility')) {
             $this->setVisibility($path, $visibility);
@@ -42,6 +54,14 @@ trait InterfaceStreamedWritingTrait
         $type = 'file';
 
         return compact('type', 'path', 'visibility');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function updateStreamInterface($path, In $stream, Config $config)
+    {
+        return $this->writeStreamInterface($path, $stream, $config);
     }
 
     /**

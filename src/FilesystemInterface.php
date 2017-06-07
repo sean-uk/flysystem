@@ -2,7 +2,7 @@
 
 namespace League\Flysystem;
 
-use Psr\Http\Message\StreamInterface;
+use Hoa\Stream\IStream\Stream;
 
 interface FilesystemInterface
 {
@@ -38,14 +38,14 @@ interface FilesystemInterface
     public function readStream($path);
 
     /**
-     * Retrieves a read StreamInterface for a path.
+     * Retrieves a read IStream for a path.
      * If the adaptor doesn't support this then the read resource will be wrapped in a high level interface
      *
      * @param string $path The path to the file.
      *
      * @throws FileNotFoundException
      *
-     * @return StreamInterface|false The path resource or false on failure.
+     * @return IStream|false The path resource or false on failure.
      */
     public function readStreamInterface($path);
 
@@ -129,7 +129,7 @@ interface FilesystemInterface
      * Write a new file using a stream.
      *
      * @param string   $path     The path of the new file.
-     * @param StreamInterface|resource $stream a StreamInferface to a file handle,
+     * @param IStream|resource $stream a IStream to a file handle,
      *      or a stream resource of type stream
      * @param array    $config   An optional configuration array.
      *
@@ -157,7 +157,7 @@ interface FilesystemInterface
      * Update an existing file using a stream.
      *
      * @param string   $path     The path of the existing file.
-     * @param StreamInterface|resource $stream a StreamInferface to a file handle,
+     * @param IStream|resource $stream a IStream to a file handle,
      *      or a stream resource of type stream
      * @param array    $config   An optional configuration array.
      *
@@ -251,7 +251,7 @@ interface FilesystemInterface
      * Create a file or update if exists.
      *
      * @param string   $path     The path to the file.
-     * @param StreamInterface|resource $stream a StreamInterface to a file handle,
+     * @param IStream|resource $stream a IStream to a file handle,
      *      or a stream resource of type stream
      * @param array    $config   An optional configuration array.
      *

@@ -2,8 +2,9 @@
 
 namespace League\Flysystem;
 
+use Hoa\Stream\Stream;
+use League\Flysystem\InterfaceStreaming\ResourceStream;
 use Psr\Http\Message\StreamInterface;
-use GuzzleHttp\Psr7;
 use InvalidArgumentException;
 
 class UtilTests extends \PHPUnit_Framework_TestCase
@@ -188,17 +189,17 @@ class UtilTests extends \PHPUnit_Framework_TestCase
         $result = Util::ensureStreamInterface($stream);
 
         fclose($stream);
-        $this->assertInstanceOf(StreamInterface::class, $result);
+        $this->assertInstanceOf(Stream::class, $result);
     }
 
     public function testEnsureStreamInterfaceAlreadyInteface()
     {
-        $stream = Psr7\stream_for(tmpfile());
+        $stream = new ResourceStream(null, tmpfile());
         $result = Util::ensureStreamInterface($stream);
 
         $stream->close();
 
-        $this->assertInstanceOf(StreamInterface::class, $stream);
+        $this->assertInstanceOf(Stream::class, $stream);
         $this->assertEquals($stream, $result);  // the original object should have been returned unchanged.
     }
 

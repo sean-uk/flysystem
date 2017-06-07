@@ -6,9 +6,9 @@ use InvalidArgumentException;
 use League\Flysystem\Adapter\CanOverwriteFiles;
 use League\Flysystem\Plugin\PluggableTrait;
 use League\Flysystem\Util\ContentListingFormatter;
-use Psr\Http\Message\StreamInterface;
 use League\Flysystem\InterfaceStreaming;
-use GuzzleHttp\Psr7;
+use Hoa\Stream\IStream\Stream;
+use League\Flysystem\InterfaceStreaming\ResourceStream;
 
 /**
  * @method array getWithMetadata(string $path, array $metadata)
@@ -78,7 +78,7 @@ class Filesystem implements FilesystemInterface
     public function writeStream($path, $stream, array $config = [])
     {
         if (!Util::isResourceOrStreamInterface($stream)) {
-            throw new InvalidArgumentException(__METHOD__ . ' expects argument #2 to be a valid resource or StreamInterface.');
+            throw new InvalidArgumentException(__METHOD__ . ' expects argument #2 to be a valid resource or Stream.');
         }
 
         $path = Util::normalizePath($path);
@@ -116,7 +116,7 @@ class Filesystem implements FilesystemInterface
     public function putStream($path, $stream, array $config = [])
     {
         if (!Util::isResourceOrStreamInterface($stream)) {
-            throw new InvalidArgumentException(__METHOD__ . ' expects argument #2 to be a valid resource or StreamInterface.');
+            throw new InvalidArgumentException(__METHOD__ . ' expects argument #2 to be a valid resource or Stream.');
         }
 
         $path = Util::normalizePath($path);
@@ -179,7 +179,7 @@ class Filesystem implements FilesystemInterface
     public function updateStream($path, $stream, array $config = [])
     {
         if (!Util::isResourceOrStreamInterface($stream)) {
-            throw new InvalidArgumentException(__METHOD__ . ' expects argument #2 to be a valid resource or StreamInterface.');
+            throw new InvalidArgumentException(__METHOD__ . ' expects argument #2 to be a valid resource or Stream.');
         }
 
         $path = Util::normalizePath($path);
@@ -241,10 +241,20 @@ class Filesystem implements FilesystemInterface
         }
 
         $stream = $object['stream'];
-        if ($stream instanceof StreamInterface) {
+        if ($stream instanceof Stream) {
             return $stream;
         }
-        return Psr7\stream_for($stream);
+        if (is_string($stream)) {
+            $streamObject = new ResourceStream();
+            $streamObject->initializeWith($stream);
+            return $streamObject;
+        }
+        if (is_resource($stream)) {
+            $streamObject = new ResourceStream(null, $stream);
+            return $streamObject;
+        }
+
+        return false;
     }
 
     /**

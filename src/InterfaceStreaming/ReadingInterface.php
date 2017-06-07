@@ -14,7 +14,7 @@ use Psr\Http\Message\StreamInterface;
 interface ReadingInterface
 {
     /**
-     * Read a file as a StreamInterface.
+     * Read a file as a Stream.
      *
      * @param string $path
      *

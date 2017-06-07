@@ -5,6 +5,7 @@ namespace League\Flysystem\Adapter;
 use DirectoryIterator;
 use FilesystemIterator;
 use finfo as Finfo;
+use Hoa\Stream\IStream\Out;
 use League\Flysystem\AdapterInterface;
 use League\Flysystem\Config;
 use League\Flysystem\Exception;
@@ -13,11 +14,9 @@ use League\Flysystem\InterfaceStreaming;
 use League\Flysystem\UnreadableFileException;
 use League\Flysystem\Util;
 use LogicException;
-use Psr\Http\Message\StreamInterface;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use SplFileInfo;
-use GuzzleHttp\Psr7;
 
 class Local extends AbstractAdapter implements InterfaceStreaming\WritingInterface
 {
@@ -200,14 +199,6 @@ class Local extends AbstractAdapter implements InterfaceStreaming\WritingInterfa
     public function updateStream($path, $resource, Config $config)
     {
         return $this->writeStream($path, $resource, $config);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function updateStreamInterface($path, StreamInterface $stream, Config $config)
-    {
-        return $this->writeStreamInterface($path, $stream, $config);
     }
 
     /**
