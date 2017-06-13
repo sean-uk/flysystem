@@ -4,7 +4,8 @@ namespace League\Flysystem;
 
 use Hoa\Stream\IStream\Pointable;
 use Hoa\Stream\IStream\Stream;
-use League\Flysystem\InterfaceStreaming\ResourceStream;
+use Hoa\Stringbuffer\ReadWrite;
+use League\Flysystem\InterfaceStreaming\ConveyorStream;
 use League\Flysystem\Util\MimeType;
 use LogicException;
 use InvalidArgumentException;
@@ -313,7 +314,10 @@ class Util
         }
 
         // get a stream object for it
-        $stream = new ResourceStream(null, $stream);
+        // @todo is this use of _setStream dubious?
+        $stringBuffer = new ReadWrite();
+        $stringBuffer->_setStream($stream);
+        $stream = new ConveyorStream(null, $stringBuffer);
         return $stream;
     }
 

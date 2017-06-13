@@ -8,10 +8,11 @@
 
 namespace League\Flysystem\Adapter;
 
+use Hoa\Stringbuffer\ReadWrite;
 use League\Flysystem\AdapterInterface;
 use League\Flysystem\Config;
 use League\Flysystem\InterfaceStreaming\Polyfill\InterfaceStreamedWritingTrait;
-use League\Flysystem\InterfaceStreaming\ResourceStream;
+use League\Flysystem\InterfaceStreaming\ConveyorStream;
 use PHPUnit_Framework_TestCase;
 
 /**
@@ -25,7 +26,7 @@ class InterfaceStreamedWritingPolyfillTests extends PHPUnit_Framework_TestCase
     public function testWrite()
     {
         // the stream inferface i'm trying to write
-        $stream = new ResourceStream(null, tmpfile());
+        $stream = new ConveyorStream(null, new ReadWrite());
 
         // the actual output resource that'll be written to
         $outputResource = tmpfile();
@@ -45,7 +46,7 @@ class InterfaceStreamedWritingPolyfillTests extends PHPUnit_Framework_TestCase
 
     public function testWriteOnOutputResourceFail()
     {
-        $stream = new ResourceStream(null, tmpfile());
+        $stream = new ConveyorStream(null, new ReadWrite());
 
         /** @var InterfaceStreamedWritingTrait $implementor */
         $implementor = $this->getMockForTrait(InterfaceStreamedWritingTrait::class);
@@ -60,7 +61,7 @@ class InterfaceStreamedWritingPolyfillTests extends PHPUnit_Framework_TestCase
 
     public function testWriteOnOutputResourceCloseFail()
     {
-        $stream = new ResourceStream(null, tmpfile());
+        $stream = new ConveyorStream(null, new ReadWrite());
         $outputResource = fopen('fail.close', 'w+b');
 
         /** @var InterfaceStreamedWritingTrait $implementor */
@@ -82,7 +83,7 @@ class InterfaceStreamedWritingPolyfillTests extends PHPUnit_Framework_TestCase
 
     public function testWriteVisibilySet()
     {
-        $stream = new ResourceStream(null, tmpfile());
+        $stream = new ConveyorStream(null, new ReadWrite());
         $outputResource = tmpfile();
 
         $config = new Config();

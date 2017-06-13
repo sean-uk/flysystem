@@ -9,7 +9,8 @@ use Prophecy\Prophecy\ObjectProphecy;
 use League\Flysystem\InterfaceStreaming\WritingInterface;
 use League\Flysystem\InterfaceStreaming\ReadingInterface;
 use League\Flysystem\AdapterInterface;
-use League\Flysystem\InterfaceStreaming\ResourceStream;
+use League\Flysystem\InterfaceStreaming\ConveyorStream;
+use Hoa\Stringbuffer\ReadWrite;
 
 class FilesystemTests extends \PHPUnit_Framework_TestCase
 {
@@ -102,7 +103,9 @@ class FilesystemTests extends \PHPUnit_Framework_TestCase
     public function testWriteStreamInterface()
     {
         $path = 'path.txt';
-        $stream = new ResourceStream(null, tmpfile());
+        $stringBuffer = new ReadWrite();
+        $stringBuffer->_setStream(tmpfile());
+        $stream = new ConveyorStream(null, $stringBuffer);
 
         // don't use the default adapter, create one implementing StreamInterfaceAdapterInterface
         /** @var AdapterInterface $adapter */
@@ -139,12 +142,13 @@ class FilesystemTests extends \PHPUnit_Framework_TestCase
         $this->setupAdapter([WritingInterface::class]);
 
         $path = 'path.txt';
-        $stream = new ResourceStream(null, tmpfile());
+        $stringBuffer = new ReadWrite();
+        $stringBuffer->_setStream(tmpfile());
+        $stream = new ConveyorStream(null, $stringBuffer);
         $this->prophecy->has($path)->willReturn(true);
         $this->prophecy->updateStreamInterface($path, $stream, $this->config)->willReturn(compact('path'));
         $result = $this->filesystem->updateStream($path, $stream);
         $this->assertTrue($result);
-        $stream->close();
     }
 
     public function testPutNew()
@@ -171,12 +175,13 @@ class FilesystemTests extends \PHPUnit_Framework_TestCase
         $this->setupAdapter([WritingInterface::class]);
 
         $path = 'path.txt';
-        $stream = new ResourceStream(null, tmpfile());
+        $stringBuffer = new ReadWrite();
+        $stringBuffer->_setStream(tmpfile());
+        $stream = new ConveyorStream(null, $stringBuffer);
         $this->prophecy->has($path)->willReturn(false);
         $this->prophecy->writeStreamInterface($path, $stream, $this->config)->willReturn(compact('path'));
         $result = $this->filesystem->putStream($path, $stream);
         $this->assertTrue($result);
-        $stream->close();
     }
 
     public function testPutUpdate()
@@ -203,12 +208,13 @@ class FilesystemTests extends \PHPUnit_Framework_TestCase
         $this->setupAdapter([WritingInterface::class]);
 
         $path = 'path.txt';
-        $stream = new ResourceStream(null, tmpfile());
+        $stringBuffer = new ReadWrite();
+        $stringBuffer->_setStream(tmpfile());
+        $stream = new ConveyorStream(null, $stringBuffer);
         $this->prophecy->has($path)->willReturn(true);
         $this->prophecy->updateStreamInterface($path, $stream, $this->config)->willReturn(compact('path'));
         $result = $this->filesystem->putStream($path, $stream);
         $this->assertTrue($result);
-        $stream->close();
     }
 
     public function testPutStreamInvalid()
@@ -285,7 +291,7 @@ class FilesystemTests extends \PHPUnit_Framework_TestCase
         $this->prophecy->has($path)->willReturn(true);
         $this->prophecy->readStream($path)->willReturn(['stream' => $output]);
         $response = $this->filesystem->readStreamInterface($path);
-        $this->assertEquals((string)$response, $output);
+        $this->assertEquals($response->readAll(), $output);
     }
 
     public function testReadStreamInterfaceSupportedAdaptor()
@@ -294,13 +300,13 @@ class FilesystemTests extends \PHPUnit_Framework_TestCase
         $this->setupAdapter([ReadingInterface::class]);
 
         $path = 'path.txt';
-        $output = new ResourceStream(null, tmpfile());
-        $output->initializeWith('__CONTENTS__');
+        $stringBuffer = new ReadWrite();
+        $stringBuffer->initializeWith('__CONTENTS__');
 
         $this->prophecy->has($path)->willReturn(true);
-        $this->prophecy->readStreamInterface($path)->willReturn(['stream' => $output]);
+        $this->prophecy->readStreamInterface($path)->willReturn(['stream' => $stringBuffer]);
         $response = $this->filesystem->readStreamInterface($path);
-        $this->assertEquals((string)$response, $output);
+        $this->assertEquals('__CONTENTS__', $response->readAll());
     }
 
     public function testReadStreamInterfaceFail()

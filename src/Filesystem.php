@@ -2,6 +2,8 @@
 
 namespace League\Flysystem;
 
+use Hoa\Stream\IStream\In;
+use Hoa\Stream\IStream\Out;
 use Hoa\Stringbuffer;
 use InvalidArgumentException;
 use League\Flysystem\Adapter\CanOverwriteFiles;
@@ -9,7 +11,7 @@ use League\Flysystem\Plugin\PluggableTrait;
 use League\Flysystem\Util\ContentListingFormatter;
 use League\Flysystem\InterfaceStreaming;
 use Hoa\Stream\IStream\Stream;
-use League\Flysystem\InterfaceStreaming\ResourceStream;
+use League\Flysystem\InterfaceStreaming\ConveyorStream;
 
 /**
  * @method array getWithMetadata(string $path, array $metadata)
@@ -241,18 +243,21 @@ class Filesystem implements FilesystemInterface
             return false;
         }
 
+        // @todo comments!
         $stream = $object['stream'];
-        if ($stream instanceof Stream) {
-            return $stream;
+        if ($stream instanceof In && $stream instanceof Out) {
+            return new ConveyorStream(null, $stream);
         }
         if (is_string($stream)) {
-            $streamObject = new ResourceStream();
-            $streamObject->initializeWith($stream);
-            return $streamObject;
+            $stringBuffer = new Stringbuffer\ReadWrite();
+            $stringBuffer->initializeWith($stream);
+            $conveyor = new ConveyorStream(null, $stringBuffer);
+            return $conveyor;
         }
         if (is_resource($stream)) {
-            $streamObject = new ResourceStream(null, $stream);
-            return $streamObject;
+            $stringBuffer = new Stringbuffer\ReadWrite();
+            $stringBuffer->_setStream($stream);
+            return $stringBuffer;
         }
 
         return false;

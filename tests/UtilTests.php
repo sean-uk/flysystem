@@ -2,8 +2,9 @@
 
 namespace League\Flysystem;
 
-use Hoa\Stream\Stream;
-use League\Flysystem\InterfaceStreaming\ResourceStream;
+use Hoa\Stream\IStream\Stream;
+use Hoa\Stringbuffer\ReadWrite;
+use League\Flysystem\InterfaceStreaming\ConveyorStream;
 use Psr\Http\Message\StreamInterface;
 use InvalidArgumentException;
 
@@ -185,20 +186,15 @@ class UtilTests extends \PHPUnit_Framework_TestCase
 
     public function testEnsureStreamInterfaceResource()
     {
-        $stream = tmpfile();
+        $stream = new ReadWrite();
         $result = Util::ensureStreamInterface($stream);
-
-        fclose($stream);
         $this->assertInstanceOf(Stream::class, $result);
     }
 
     public function testEnsureStreamInterfaceAlreadyInteface()
     {
-        $stream = new ResourceStream(null, tmpfile());
+        $stream = new ConveyorStream(null, new ReadWrite());
         $result = Util::ensureStreamInterface($stream);
-
-        $stream->close();
-
         $this->assertInstanceOf(Stream::class, $stream);
         $this->assertEquals($stream, $result);  // the original object should have been returned unchanged.
     }
