@@ -82,7 +82,7 @@ class ConveyorStreamTests extends PHPUnit_Framework_TestCase
         $this->assertGreaterThan(4, $calls);
     }
 
-    public function testNonBlockedEof()
+    public function testNonPausedEof()
     {
         $conveyable = new ReadWrite();
         $stream = new ConveyorStream(null, $conveyable);
@@ -91,7 +91,7 @@ class ConveyorStreamTests extends PHPUnit_Framework_TestCase
         $this->assertTrue($stream->eof());
     }
 
-    public function testBlockedEof()
+    public function testPausedEof()
     {
         $conveyable = new ReadWrite();
         $stream = new ConveyorStream(null, $conveyable);

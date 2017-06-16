@@ -3,9 +3,6 @@
 namespace League\Flysystem\InterfaceStreaming;
 
 use Hoa\Stream;
-use Hoa\Stream\Context;
-use Hoa\Stringbuffer\ReadWrite;
-use Hoa\Stringbuffer\Stringbuffer;
 use InvalidArgumentException;
 
 /**
@@ -93,7 +90,7 @@ class ConveyorStream implements Stream\IStream\In, Stream\IStream\Out
     public function readString($length)
     {
         if ($this->paused) {
-            return '';
+            return null;
         }
         return $this->stream->readString($length);
     }
@@ -102,7 +99,7 @@ class ConveyorStream implements Stream\IStream\In, Stream\IStream\Out
     public function readCharacter()
     {
         if ($this->paused) {
-            return '';
+            return null;
         }
         return $this->stream->readCharacter();
     }
@@ -111,7 +108,7 @@ class ConveyorStream implements Stream\IStream\In, Stream\IStream\Out
     public function readBoolean()
     {
         if ($this->paused) {
-            return '';
+            return null;
         }
         return $this->stream->readBoolean();
     }
@@ -120,7 +117,7 @@ class ConveyorStream implements Stream\IStream\In, Stream\IStream\Out
     public function readInteger($length = 1)
     {
         if ($this->paused) {
-            return '';
+            return null;
         }
         return $this->stream->readInteger($length);
     }
@@ -129,7 +126,7 @@ class ConveyorStream implements Stream\IStream\In, Stream\IStream\Out
     public function readFloat($length = 1)
     {
         if ($this->paused) {
-            return '';
+            return null;
         }
         return $this->stream->readFloat($length);
     }
@@ -138,7 +135,7 @@ class ConveyorStream implements Stream\IStream\In, Stream\IStream\Out
     public function readArray($argument = null)
     {
         if ($this->paused) {
-            return '';
+            return null;
         }
         return $this->stream->readArray($argument);
     }
@@ -147,7 +144,7 @@ class ConveyorStream implements Stream\IStream\In, Stream\IStream\Out
     public function readLine()
     {
         if ($this->paused) {
-            return '';
+            return null;
         }
         return $this->stream->readLine();
     }
@@ -156,7 +153,7 @@ class ConveyorStream implements Stream\IStream\In, Stream\IStream\Out
     public function readAll($offset = 0)
     {
         if ($this->paused) {
-            return '';
+            return null;
         }
         return $this->stream->readAll($offset);
     }
@@ -165,7 +162,7 @@ class ConveyorStream implements Stream\IStream\In, Stream\IStream\Out
     public function scanf($format)
     {
         if ($this->paused) {
-            return '';
+            return null;
         }
         return $this->stream->scanf($format);
     }
